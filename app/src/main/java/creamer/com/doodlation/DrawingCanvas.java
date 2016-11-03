@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -17,21 +18,23 @@ import java.util.ArrayList;
 public class DrawingCanvas extends View {
     private float x,y;
     private ArrayList<ArrayList<Point>> paths;
-    private Paint paint;
-    private int width;
+    private ArrayList<Paint> paints;
+
+    private Paint curPaint;
+
     private String drawingMode;
+
+    public static final int MIN_SIZE = 5, MAX_SIZE = 200;
 
     public DrawingCanvas(Context context, AttributeSet attrs) {
         super(context,attrs);
 
-        width = 10;
-
-        paint = new Paint();
-        paint.setColor(Color.RED);
-        paint.setStrokeWidth(width);
-        paint.setStrokeCap(Paint.Cap.ROUND);
-
         paths = new ArrayList<>();
+        paints = new ArrayList<>();
+        curPaint = new Paint();
+        curPaint.setColor(Color.RED);
+        curPaint.setStrokeWidth(10);
+        curPaint.setStrokeCap(Paint.Cap.ROUND);
 
         drawingMode = "Brush";
     }
@@ -41,10 +44,16 @@ public class DrawingCanvas extends View {
         super.onDraw(canvas);
 
         // Draw the paths
-        for(ArrayList<Point> path: paths) {
-            for (int i = 0; i < path.size() - 1; i++) {
-                Point p1 = path.get(i);
-                Point p2 = path.get(i + 1);
+        for(int i = 0; i < paths.size(); i++) {
+            ArrayList<Point> path = paths.get(i);
+            Paint paint = paints.get(i);
+
+            if(path.size() >= 1) {
+                canvas.drawCircle(path.get(0).x, path.get(0).y, paint.getStrokeWidth() / 2, paint);
+            }
+            for (int j = 0; j < path.size() - 1; j++) {
+                Point p1 = path.get(j);
+                Point p2 = path.get(j + 1);
 
                 canvas.drawLine(p1.x, p1.y, p2.x, p2.y, paint);
             }
@@ -58,20 +67,26 @@ public class DrawingCanvas extends View {
 
         switch(event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                paths.add(new ArrayList<Point>());
+                paints.add(new Paint(curPaint));
+
+                ArrayList<Point> newPath = new ArrayList<Point>();
+                Point start = new Point((int) x, (int) y);
+                newPath.add(start);
+
+                if(drawingMode.equals("Line")) {    // Create the two points
+                    newPath.add(new Point((int) x, (int) y));
+                }
+
+                paths.add(newPath);
+                break;
             case MotionEvent.ACTION_MOVE:
-                ArrayList<Point> lastPath = paths.get(paths.size() - 1);
+                ArrayList<Point> lastPath = paths.get(paths.size()-1);
 
                 if(drawingMode.equals("Brush")) {
                     lastPath.add(new Point((int) x, (int) y));
                 }
                 else if(drawingMode.equals("Line")) {
-                    if(lastPath.size() <= 1) {
-                        lastPath.add(new Point((int) x, (int) y));
-                    }
-                    else {
-                        lastPath.get(lastPath.size()-1).set((int)x, (int) y);
-                    }
+                    lastPath.get(lastPath.size()-1).set((int)x, (int) y);
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -88,9 +103,14 @@ public class DrawingCanvas extends View {
 
     // Undoes the previous stroke
     public void undo() {
+        // if there are no paths, return
+        if(paths.size() < 1) {
+            return;
+        }
+
         // remove the last path
-        if(paths.size() >= 1)
-            paths.remove(paths.size()-1);
+        paths.remove(paths.size()-1);
+        paints.remove(paints.size()-1);
 
         invalidate();
     }
@@ -98,7 +118,16 @@ public class DrawingCanvas extends View {
     public void clear() {
         // clear the entire paths array
         paths.clear();
+        paints.clear();
 
         invalidate();
+    }
+
+    public Paint getPaint() {
+        return curPaint;
+    }
+
+    public void setPaint(Paint inputPaint) {
+        curPaint = inputPaint;
     }
 }
