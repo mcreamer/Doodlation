@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import java.util.ArrayList;
 
@@ -16,24 +17,25 @@ import java.util.ArrayList;
  * Created by MarkCreamer on 11/1/16.
  */
 public class DrawingCanvas extends View {
-    private float x,y;
-    private ArrayList<ArrayList<Point>> paths;
-    private ArrayList<Paint> paints;
-
-    private Paint curPaint;
-
-    private String drawingMode;
+    private ArrayList<Action> actions;
+    private ArrayList<Action> redoArray;
 
     public static final int MIN_SIZE = 5, MAX_SIZE = 200;
+
+    private Paint curPaint;
+    private String drawingMode;
+    private boolean transform;
 
     public DrawingCanvas(Context context, AttributeSet attrs) {
         super(context,attrs);
 
-        paths = new ArrayList<>();
-        paints = new ArrayList<>();
+        actions = new ArrayList<>();
+        redoArray = new ArrayList<>();
+
         curPaint = new Paint();
         curPaint.setColor(Color.RED);
         curPaint.setStrokeWidth(10);
+        curPaint.setTextSize(10);
         curPaint.setStrokeCap(Paint.Cap.ROUND);
 
         drawingMode = "Brush";
@@ -43,53 +45,74 @@ public class DrawingCanvas extends View {
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        // Draw the paths
-        for(int i = 0; i < paths.size(); i++) {
-            ArrayList<Point> path = paths.get(i);
-            Paint paint = paints.get(i);
-
-            if(path.size() >= 1) {
-                canvas.drawCircle(path.get(0).x, path.get(0).y, paint.getStrokeWidth() / 2, paint);
-            }
-            for (int j = 0; j < path.size() - 1; j++) {
-                Point p1 = path.get(j);
-                Point p2 = path.get(j + 1);
-
-                canvas.drawLine(p1.x, p1.y, p2.x, p2.y, paint);
-            }
+        // Draw the actions
+        for(Action action: actions) {
+            action.draw(canvas);
         }
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        x = event.getX();
-        y = event.getY();
+        float x = event.getX();
+        float y = event.getY();
+
+        Action lastAction;
 
         switch(event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                paints.add(new Paint(curPaint));
-
-                ArrayList<Point> newPath = new ArrayList<Point>();
-                Point start = new Point((int) x, (int) y);
-                newPath.add(start);
-
-                if(drawingMode.equals("Line")) {    // Create the two points
-                    newPath.add(new Point((int) x, (int) y));
-                }
-
-                paths.add(newPath);
-                break;
-            case MotionEvent.ACTION_MOVE:
-                ArrayList<Point> lastPath = paths.get(paths.size()-1);
-
+                Action newAction = null;
                 if(drawingMode.equals("Brush")) {
-                    lastPath.add(new Point((int) x, (int) y));
+                    DoodlePath newPath = new DoodlePath(new Paint(curPaint));
+
+                    Point start = new Point((int)x,(int)y);
+                    newPath.addPoint(start);
+
+                    newAction = newPath;
                 }
                 else if(drawingMode.equals("Line")) {
-                    lastPath.get(lastPath.size()-1).set((int)x, (int) y);
+                    DoodleLine newLine = new DoodleLine(new Paint(curPaint));
+
+                    newLine.setStart((int)x,(int)y);
+                    newLine.setEnd((int)x,(int)y);
+
+                    newAction = newLine;
                 }
+                else if(drawingMode.equals("Text")) {
+                    DoodleText newText = new DoodleText(new Paint(curPaint));
+
+                    newText.setPosition((int)x,(int)y);
+                    newText.setText("Sample Text");
+
+                    newAction = newText;
+                }
+                else if(drawingMode.equals("Rectangle")) {
+                    DoodleRect newRect = new DoodleRect(new Paint(curPaint));
+
+                    newRect.setStart((int)x,(int)y);
+
+                    newAction = newRect;
+                }
+                else if(drawingMode.equals("Oval")) {
+                    DoodleOval newOval = new DoodleOval(new Paint(curPaint));
+
+                    newOval.setStart((int)x,(int)y);
+
+                    newAction = newOval;
+                }
+
+                actions.add(newAction);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                lastAction = actions.get(actions.size()-1);
+
+                lastAction.handleOnMove(x,y);
+
                 break;
             case MotionEvent.ACTION_UP:
+                lastAction = actions.get(actions.size()-1);
+
+                lastAction.handleOnUp(x,y);
+                break;
         }
 
         invalidate();
@@ -101,30 +124,66 @@ public class DrawingCanvas extends View {
         drawingMode = newMode;
     }
 
-    // Undoes the previous stroke
+    // Undoes the previous action
+    // Returns true if the undo button should be enabled
     public void undo() {
-        // if there are no paths, return
-        if(paths.size() < 1) {
+        // if there are no actions, return
+        if(actions.size() < 1)
             return;
-        }
 
-        // remove the last path
-        paths.remove(paths.size()-1);
-        paints.remove(paints.size()-1);
+        // remove the last action
+        redoArray.add(actions.remove(actions.size()-1));
+
+        invalidate();
+    }
+
+    // Redoes the previous action
+    // Returns true if the redo button should be enabled
+    public void redo() {
+        // if there are no redos, return
+        if(redoArray.size() < 1)
+            return;
+
+        // redo the last action
+        actions.add(redoArray.remove(redoArray.size()-1));
 
         invalidate();
     }
 
     public void clear() {
-        // clear the entire paths array
-        paths.clear();
-        paints.clear();
+        // clear the entire actions array
+        actions.clear();
+        redoArray.clear();
 
         invalidate();
     }
 
+    public void toggleTransform() {
+        transform = !transform;
+
+        invalidate();
+    }
+
+    public Point transform(Point input) {
+        int newX = input.x;
+        int newY = input.y;
+
+        // center
+        newX -= getWidth()/2;
+        newY -= getHeight()/2;
+
+        newX += (newX-20)^2;
+        newY += (newY-20)^2;
+
+        // decenter
+        newX += getWidth()/2;
+        newY += getHeight()/2;
+
+        return new Point(newX,newY);
+    }
+
     public Paint getPaint() {
-        return curPaint;
+        return new Paint(curPaint);
     }
 
     public void setPaint(Paint inputPaint) {

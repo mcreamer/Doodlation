@@ -9,6 +9,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +21,9 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
     private DrawingCanvas dCanvas;
     private ImageButton brushButton;
     private ImageButton lineButton;
+    private ImageButton textButton;
+    private ImageButton rectButton;
+    private ImageButton ovalButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,22 +36,38 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
         brushButton.setEnabled(false);
         lineButton = (ImageButton)findViewById(R.id.line);
         lineButton.setEnabled(true);
+        textButton = (ImageButton)findViewById(R.id.text);
+        textButton.setEnabled(true);
+        rectButton = (ImageButton)findViewById(R.id.rectangle);
+        rectButton.setEnabled(true);
+        ovalButton = (ImageButton)findViewById(R.id.oval);
+        ovalButton.setEnabled(true);
     }
 
     protected void onBrush(View v) {
         dCanvas.setMode("Brush");
         brushButton.setEnabled(false);
         lineButton.setEnabled(true);
+        textButton.setEnabled(true);
+        rectButton.setEnabled(true);
+        ovalButton.setEnabled(true);
     }
 
     protected void onLine(View v) {
         dCanvas.setMode("Line");
         brushButton.setEnabled(true);
         lineButton.setEnabled(false);
+        textButton.setEnabled(true);
+        rectButton.setEnabled(true);
+        ovalButton.setEnabled(true);
     }
 
     protected void onUndo(View v) {
         dCanvas.undo();
+    }
+
+    protected void onRedo(View v) {
+        dCanvas.redo();
     }
 
     protected void onClear(View v) {
@@ -55,7 +75,30 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
     }
 
     protected void onText(View v) {
-        //dCanvas.makeText();
+        dCanvas.setMode("Text");
+        brushButton.setEnabled(true);
+        lineButton.setEnabled(true);
+        textButton.setEnabled(false);
+        rectButton.setEnabled(true);
+        ovalButton.setEnabled(true);
+    }
+
+    protected void onRectangle(View v) {
+        dCanvas.setMode("Rectangle");
+        brushButton.setEnabled(true);
+        lineButton.setEnabled(true);
+        textButton.setEnabled(true);
+        rectButton.setEnabled(false);
+        ovalButton.setEnabled(true);
+    }
+
+    protected void onOval(View v) {
+        dCanvas.setMode("Oval");
+        brushButton.setEnabled(true);
+        lineButton.setEnabled(true);
+        textButton.setEnabled(true);
+        rectButton.setEnabled(true);
+        ovalButton.setEnabled(false);
     }
 
     protected void onSettings(View v) {
@@ -63,6 +106,11 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
         MyDialogFragment myDialogFragment = new MyDialogFragment();
         myDialogFragment.setCurrentColor(dCanvas.getPaint());
         myDialogFragment.show(getSupportFragmentManager(),"SettingsDialogFragment");
+    }
+
+    protected void onTransform(View v) {
+        // Toggle the transform
+        dCanvas.toggleTransform();
     }
 
     @Override
@@ -82,15 +130,15 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
                 (int)(gSlider.getProgress()/100.0*255),
                 (int)(bSlider.getProgress()/100.0*255));
 
-        inputPaint.setStrokeWidth(DrawingCanvas.MIN_SIZE+sizeSlider.getProgress()/100.0f*DrawingCanvas.MAX_SIZE);
+        float newSize = DrawingCanvas.MIN_SIZE+sizeSlider.getProgress()/100.0f*DrawingCanvas.MAX_SIZE;
+        inputPaint.setStrokeWidth(newSize);
+        inputPaint.setTextSize(newSize);
         inputPaint.setStrokeCap(Paint.Cap.ROUND);
         dCanvas.setPaint(inputPaint);
-        Toast.makeText(getApplicationContext(),"Changed the color",Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onDialogNegativeClick(DialogFragment dialog) {
         // User touched the dialog's negative button
-
     }
 }

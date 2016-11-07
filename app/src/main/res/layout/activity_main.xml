@@ -6,46 +6,87 @@
     android:orientation="vertical"
     tools:context="creamer.com.doodlation.MainActivity">
 
-    <LinearLayout
+    <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/toolsBackground">
-        <ImageButton
-            android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/brush"
-            android:src="@drawable/ic_create_black_24dp"
-            android:clickable="false"
-            android:onClick="onBrush" />
+            android:background="@color/toolsBackground">
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/brush"
+                android:src="@drawable/ic_brush"
+                android:clickable="false"
+                android:onClick="onBrush" />
 
-        <ImageButton
-            android:layout_width="50dp"
-            android:layout_height="45dp"
-            android:id="@+id/line"
-            android:src="@drawable/ic_line"
-            android:onClick="onLine"/>
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="45dp"
+                android:id="@+id/line"
+                android:src="@drawable/ic_line"
+                android:onClick="onLine"/>
 
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/undo"
-            android:src="@drawable/ic_undo_black_24dp"
-            android:onClick="onUndo" />
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/text"
+                android:src="@drawable/ic_text"
+                android:onClick="onText" />
 
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/clear"
-            android:src="@drawable/ic_clear"
-            android:onClick="onClear" />
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/rectangle"
+                android:src="@drawable/ic_rectangle"
+                android:onClick="onRectangle" />
 
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/settings"
-            android:src="@drawable/ic_settings"
-            android:onClick="onSettings" />
-    </LinearLayout>
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/oval"
+                android:src="@drawable/ic_oval"
+                android:onClick="onOval" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/undo"
+                android:src="@drawable/ic_undo_black_24dp"
+                android:clickable="false"
+                android:onClick="onUndo" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/redo"
+                android:src="@drawable/ic_redo"
+                android:clickable="false"
+                android:onClick="onRedo" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/clear"
+                android:src="@drawable/ic_clear"
+                android:onClick="onClear" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/settings"
+                android:src="@drawable/ic_settings"
+                android:onClick="onSettings" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/transform"
+                android:src="@drawable/ic_transform"
+                android:onClick="onTransform" />
+        </LinearLayout>
+    </HorizontalScrollView>
 
     <creamer.com.doodlation.DrawingCanvas
         android:layout_width="wrap_content"

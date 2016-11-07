@@ -148,7 +148,9 @@ public class MyDialogFragment extends DialogFragment {
         sizeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                paint.setStrokeWidth(DrawingCanvas.MIN_SIZE+(DrawingCanvas.MAX_SIZE-DrawingCanvas.MIN_SIZE)*(i/100.0f));
+                float newSize = DrawingCanvas.MIN_SIZE+(DrawingCanvas.MAX_SIZE-DrawingCanvas.MIN_SIZE)*(i/100.0f);
+                paint.setStrokeWidth(newSize);
+                paint.setTextSize(newSize);
                 sampleCursor.samplePaint = paint;
                 sampleCursor.invalidate();
             }
