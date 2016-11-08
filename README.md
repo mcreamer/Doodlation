@@ -10,3 +10,4 @@ A simple Android drawing application with various tools.
 - [ ] Animated strokes that alternate line colors
 - [ ] 2D transformations
 - [ ] Move and rotate doodles
+- [ ] Make the undo and redo buttons disabled if there is nothing to undo or redo
