@@ -26,7 +26,6 @@ public class DoodleLine extends Action {
             Path segmentedPath = new Path();
 
 
-
             canvas.drawPath(segmentedPath,paint);
         }
     }
