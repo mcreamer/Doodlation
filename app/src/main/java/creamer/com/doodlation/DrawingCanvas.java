@@ -1,15 +1,18 @@
 package creamer.com.doodlation;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.support.v7.app.AlertDialog;
+import android.text.InputType;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 import java.util.ArrayList;
 
@@ -20,7 +23,9 @@ public class DrawingCanvas extends View {
     private ArrayList<Action> actions;
     private ArrayList<Action> redoArray;
 
-    public static final int MIN_SIZE = 5, MAX_SIZE = 200;
+    public static final int MIN_SIZE = 10, MAX_SIZE = 200;
+
+    public static int width, height;
 
     private Paint curPaint;
     private String drawingMode;
@@ -34,11 +39,15 @@ public class DrawingCanvas extends View {
 
         curPaint = new Paint();
         curPaint.setColor(Color.RED);
-        curPaint.setStrokeWidth(10);
-        curPaint.setTextSize(10);
+        curPaint.setStrokeWidth((MAX_SIZE+MIN_SIZE)/2);
+        curPaint.setTextSize((MAX_SIZE+MIN_SIZE)/2);
         curPaint.setStrokeCap(Paint.Cap.ROUND);
+        curPaint.setStyle(Paint.Style.STROKE);
 
         drawingMode = "Brush";
+
+        width = getWidth();
+        height = getHeight();
     }
 
     @Override
@@ -47,7 +56,7 @@ public class DrawingCanvas extends View {
 
         // Draw the actions
         for(Action action: actions) {
-            action.draw(canvas);
+            action.draw(canvas,transform);
         }
     }
 
@@ -62,45 +71,28 @@ public class DrawingCanvas extends View {
             case MotionEvent.ACTION_DOWN:
                 Action newAction = null;
                 if(drawingMode.equals("Brush")) {
-                    DoodlePath newPath = new DoodlePath(new Paint(curPaint));
-
-                    Point start = new Point((int)x,(int)y);
-                    newPath.addPoint(start);
-
-                    newAction = newPath;
+                    newAction = new DoodlePath(new Paint(curPaint));
                 }
                 else if(drawingMode.equals("Line")) {
-                    DoodleLine newLine = new DoodleLine(new Paint(curPaint));
-
-                    newLine.setStart((int)x,(int)y);
-                    newLine.setEnd((int)x,(int)y);
-
-                    newAction = newLine;
+                    newAction = new DoodleLine(new Paint(curPaint));
                 }
                 else if(drawingMode.equals("Text")) {
-                    DoodleText newText = new DoodleText(new Paint(curPaint));
-
-                    newText.setPosition((int)x,(int)y);
-                    newText.setText("Sample Text");
-
-                    newAction = newText;
+                    newAction = new DoodleText(new Paint(curPaint));
+                }
+                else if(drawingMode.equals("TextPath")) {
+                    newAction = new DoodleTextPath(new Paint(curPaint));
                 }
                 else if(drawingMode.equals("Rectangle")) {
-                    DoodleRect newRect = new DoodleRect(new Paint(curPaint));
-
-                    newRect.setStart((int)x,(int)y);
-
-                    newAction = newRect;
+                    newAction = new DoodleRect(new Paint(curPaint));
                 }
                 else if(drawingMode.equals("Oval")) {
-                    DoodleOval newOval = new DoodleOval(new Paint(curPaint));
-
-                    newOval.setStart((int)x,(int)y);
-
-                    newAction = newOval;
+                    newAction = new DoodleCircle(new Paint(curPaint));
                 }
 
+                newAction.handleOnDown(x,y);
                 actions.add(newAction);
+
+                redoArray.clear();
                 break;
             case MotionEvent.ACTION_MOVE:
                 lastAction = actions.get(actions.size()-1);
@@ -112,6 +104,71 @@ public class DrawingCanvas extends View {
                 lastAction = actions.get(actions.size()-1);
 
                 lastAction.handleOnUp(x,y);
+
+                if(drawingMode.equals("Text")) {
+                    final DoodleText lastText = (DoodleText) lastAction;
+                    // Display a text input popup
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setTitle("Enter Text");
+
+                    // Set up the input
+                    final EditText input = new EditText(getContext());
+                    // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                    input.setInputType(InputType.TYPE_CLASS_TEXT);
+                    builder.setView(input);
+
+                    // Set up the buttons
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            lastText.setText(input.getText().toString());
+
+                            invalidate();
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                            actions.remove(actions.size()-1);
+                            invalidate();
+                        }
+                    });
+
+                    builder.show();
+                }
+                else if(drawingMode.equals("TextPath")) {
+                    final DoodleTextPath lastTextPath = (DoodleTextPath) lastAction;
+                    // Display a text input popup
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setTitle("Enter Text");
+
+                    // Set up the input
+                    final EditText input = new EditText(getContext());
+                    // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                    input.setInputType(InputType.TYPE_CLASS_TEXT);
+                    builder.setView(input);
+
+                    // Set up the buttons
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            lastTextPath.setText(input.getText().toString());
+
+                            invalidate();
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                            actions.remove(actions.size()-1);
+                            invalidate();
+                        }
+                    });
+
+                    builder.show();
+                }
                 break;
         }
 
@@ -119,13 +176,14 @@ public class DrawingCanvas extends View {
         return true;
     }
 
+
+
     // Assumes newMode is a valid mode
     public void setMode(String newMode) {
         drawingMode = newMode;
     }
 
     // Undoes the previous action
-    // Returns true if the undo button should be enabled
     public void undo() {
         // if there are no actions, return
         if(actions.size() < 1)
@@ -138,7 +196,6 @@ public class DrawingCanvas extends View {
     }
 
     // Redoes the previous action
-    // Returns true if the redo button should be enabled
     public void redo() {
         // if there are no redos, return
         if(redoArray.size() < 1)
@@ -164,20 +221,20 @@ public class DrawingCanvas extends View {
         invalidate();
     }
 
-    public Point transform(Point input) {
+    public static Point transform(Point input) {
         int newX = input.x;
         int newY = input.y;
 
         // center
-        newX -= getWidth()/2;
-        newY -= getHeight()/2;
+        newX -= width/2;
+        newY -= height/2;
 
-        newX += (newX-20)^2;
-        newY += (newY-20)^2;
+        newX += 40;
+        newY += 40;
 
         // decenter
-        newX += getWidth()/2;
-        newY += getHeight()/2;
+        newX += width/2;
+        newY += height/2;
 
         return new Point(newX,newY);
     }

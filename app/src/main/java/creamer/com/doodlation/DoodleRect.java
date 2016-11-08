@@ -9,7 +9,6 @@ import android.graphics.Point;
  */
 public class DoodleRect extends Action {
     private Paint paint;
-
     private Point start, end;
 
     public DoodleRect(Paint paint) {
@@ -19,8 +18,13 @@ public class DoodleRect extends Action {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(Canvas canvas, boolean transform) {
         canvas.drawRect(start.x,start.y,end.x,end.y,paint);
+    }
+
+    @Override
+    public void handleOnDown(float x, float y) {
+        start.set((int)x,(int)y);
     }
 
     @Override
@@ -31,13 +35,5 @@ public class DoodleRect extends Action {
     @Override
     public void handleOnUp(float x, float y) {
 
-    }
-
-    public void setStart(int x, int y) {
-        start.set(x,y);
-    }
-
-    public void setEnd(int x, int y) {
-        end.set(x,y);
     }
 }

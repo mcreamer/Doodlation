@@ -8,15 +8,22 @@ import android.graphics.Point;
 import java.util.ArrayList;
 
 /**
- * Created by MarkCreamer on 11/7/16.
+ * Created by MarkCreamer on 11/8/16.
  */
-public class DoodlePath extends Action {
+public class DoodleTextPath extends Action {
     private ArrayList<Point> path;
+    private String text;
     private Paint paint;
 
-    public DoodlePath(Paint paint) {
+    public DoodleTextPath(Paint paint) {
         path = new ArrayList<>();
+        text = "Sample Text";
         this.paint = paint;
+        paint.setStrokeWidth(10);
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 
     @Override
@@ -45,8 +52,10 @@ public class DoodlePath extends Action {
                 displayPath.lineTo(altered.x, altered.y);
             }
         }
-
+        paint.setStyle(Paint.Style.STROKE);
         canvas.drawPath(displayPath,paint);
+        paint.setStyle(Paint.Style.FILL);
+        canvas.drawTextOnPath(text,displayPath,0,0,paint);
     }
 
     @Override
@@ -61,5 +70,6 @@ public class DoodlePath extends Action {
 
     @Override
     public void handleOnUp(float x, float y) {
+
     }
 }

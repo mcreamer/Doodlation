@@ -2,6 +2,7 @@ package creamer.com.doodlation;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Point;
 
 /**
@@ -9,7 +10,6 @@ import android.graphics.Point;
  */
 public class DoodleLine extends Action {
     private Paint paint;
-
     private Point start, end;
 
     public DoodleLine(Paint paint) {
@@ -19,8 +19,22 @@ public class DoodleLine extends Action {
     }
 
     @Override
-    public void draw(Canvas canvas) {
-        canvas.drawLine(start.x,start.y,end.x,end.y,paint);
+    public void draw(Canvas canvas, boolean transform) {
+        if(!transform)
+            canvas.drawLine(start.x,start.y,end.x,end.y,paint);
+        else {  // Cut up the line into segments
+            Path segmentedPath = new Path();
+
+
+
+            canvas.drawPath(segmentedPath,paint);
+        }
+    }
+
+    @Override
+    public void handleOnDown(float x, float y) {
+        start.set((int)x,(int)y);
+        end.set((int)x,(int)y);
     }
 
     @Override
@@ -31,13 +45,5 @@ public class DoodleLine extends Action {
     @Override
     public void handleOnUp(float x, float y) {
 
-    }
-
-    public void setStart(int x, int y) {
-        start.set(x,y);
-    }
-
-    public void setEnd(int x, int y) {
-        end.set(x,y);
     }
 }

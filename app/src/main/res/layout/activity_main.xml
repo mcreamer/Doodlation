@@ -38,6 +38,13 @@
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/textpath"
+                android:src="@drawable/ic_text_path"
+                android:onClick="onTextPath" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:id="@+id/rectangle"
                 android:src="@drawable/ic_rectangle"
                 android:onClick="onRectangle" />
@@ -45,9 +52,9 @@
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/oval"
-                android:src="@drawable/ic_oval"
-                android:onClick="onOval" />
+                android:id="@+id/circle"
+                android:src="@drawable/ic_circle"
+                android:onClick="onCircle" />
 
             <ImageButton
                 android:layout_width="wrap_content"

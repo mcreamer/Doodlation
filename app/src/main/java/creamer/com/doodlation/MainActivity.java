@@ -22,8 +22,9 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
     private ImageButton brushButton;
     private ImageButton lineButton;
     private ImageButton textButton;
+    private ImageButton textPathButton;
     private ImageButton rectButton;
-    private ImageButton ovalButton;
+    private ImageButton circleButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,10 +39,12 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
         lineButton.setEnabled(true);
         textButton = (ImageButton)findViewById(R.id.text);
         textButton.setEnabled(true);
+        textPathButton = (ImageButton)findViewById(R.id.textpath);
+        textPathButton.setEnabled(true);
         rectButton = (ImageButton)findViewById(R.id.rectangle);
         rectButton.setEnabled(true);
-        ovalButton = (ImageButton)findViewById(R.id.oval);
-        ovalButton.setEnabled(true);
+        circleButton = (ImageButton)findViewById(R.id.circle);
+        circleButton.setEnabled(true);
     }
 
     protected void onBrush(View v) {
@@ -49,8 +52,9 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
         brushButton.setEnabled(false);
         lineButton.setEnabled(true);
         textButton.setEnabled(true);
+        textPathButton.setEnabled(true);
         rectButton.setEnabled(true);
-        ovalButton.setEnabled(true);
+        circleButton.setEnabled(true);
     }
 
     protected void onLine(View v) {
@@ -58,8 +62,9 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
         brushButton.setEnabled(true);
         lineButton.setEnabled(false);
         textButton.setEnabled(true);
+        textPathButton.setEnabled(true);
         rectButton.setEnabled(true);
-        ovalButton.setEnabled(true);
+        circleButton.setEnabled(true);
     }
 
     protected void onUndo(View v) {
@@ -79,8 +84,19 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
         brushButton.setEnabled(true);
         lineButton.setEnabled(true);
         textButton.setEnabled(false);
+        textPathButton.setEnabled(true);
         rectButton.setEnabled(true);
-        ovalButton.setEnabled(true);
+        circleButton.setEnabled(true);
+    }
+
+    protected void onTextPath(View v) {
+        dCanvas.setMode("TextPath");
+        brushButton.setEnabled(true);
+        lineButton.setEnabled(true);
+        textButton.setEnabled(true);
+        textPathButton.setEnabled(false);
+        rectButton.setEnabled(true);
+        circleButton.setEnabled(true);
     }
 
     protected void onRectangle(View v) {
@@ -88,17 +104,19 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
         brushButton.setEnabled(true);
         lineButton.setEnabled(true);
         textButton.setEnabled(true);
+        textPathButton.setEnabled(true);
         rectButton.setEnabled(false);
-        ovalButton.setEnabled(true);
+        circleButton.setEnabled(true);
     }
 
-    protected void onOval(View v) {
+    protected void onCircle(View v) {
         dCanvas.setMode("Oval");
         brushButton.setEnabled(true);
         lineButton.setEnabled(true);
         textButton.setEnabled(true);
+        textPathButton.setEnabled(true);
         rectButton.setEnabled(true);
-        ovalButton.setEnabled(false);
+        circleButton.setEnabled(false);
     }
 
     protected void onSettings(View v) {
@@ -134,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
         inputPaint.setStrokeWidth(newSize);
         inputPaint.setTextSize(newSize);
         inputPaint.setStrokeCap(Paint.Cap.ROUND);
+        inputPaint.setStyle(Paint.Style.STROKE);
         dCanvas.setPaint(inputPaint);
     }
 
