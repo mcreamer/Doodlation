@@ -48,6 +48,8 @@ public class DrawingCanvas extends View {
 
         width = getWidth();
         height = getHeight();
+
+        transform = false;
     }
 
     @Override
@@ -153,8 +155,12 @@ public class DrawingCanvas extends View {
                     builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            lastTextPath.setText(input.getText().toString());
-
+                            if(input.getText().toString().equals("")) {
+                                actions.remove(actions.size()-1);
+                            }
+                            else {
+                                lastTextPath.setText(input.getText().toString());
+                            }
                             invalidate();
                         }
                     });
@@ -175,8 +181,6 @@ public class DrawingCanvas extends View {
         invalidate();
         return true;
     }
-
-
 
     // Assumes newMode is a valid mode
     public void setMode(String newMode) {
@@ -221,16 +225,19 @@ public class DrawingCanvas extends View {
         invalidate();
     }
 
-    public static Point transform(Point input) {
-        int newX = input.x;
-        int newY = input.y;
+    public static Point transform(Point p) {
+        return transform(p.x,p.y);
+    }
+
+    public static Point transform(int x, int y) {
+        int newX = x;
+        int newY = y;
 
         // center
         newX -= width/2;
         newY -= height/2;
 
-        newX += 40;
-        newY += 40;
+        newX += 100*Math.sin(newY/100.0);
 
         // decenter
         newX += width/2;

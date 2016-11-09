@@ -20,11 +20,22 @@ public class DoodleLine extends Action {
 
     @Override
     public void draw(Canvas canvas, boolean transform) {
-        if(!transform)
-            canvas.drawLine(start.x,start.y,end.x,end.y,paint);
-        else {  // Cut up the line into segments
+        if(!transform) {
+            canvas.drawLine(start.x, start.y, end.x, end.y, paint);
+        }
+        else {          // Cut up the line into segments
             Path segmentedPath = new Path();
 
+            Point altered = DrawingCanvas.transform(start.x, start.y);
+            segmentedPath.moveTo(altered.x,altered.y);
+
+            for(int i = 0; i < 99; i++) {
+                altered = DrawingCanvas.transform(start.x+(int)(i*(end.x-start.x)/100.0),start.y+(int)(i*(end.y-start.y)/100.0));
+                segmentedPath.lineTo(altered.x,altered.y);
+            }
+
+            altered = DrawingCanvas.transform(end.x,end.y);
+            segmentedPath.lineTo(altered.x,altered.y);
 
             canvas.drawPath(segmentedPath,paint);
         }

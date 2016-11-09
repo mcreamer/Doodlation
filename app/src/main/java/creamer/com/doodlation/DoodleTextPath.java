@@ -45,9 +45,7 @@ public class DoodleTextPath extends Action {
             Point altered = DrawingCanvas.transform(path.get(0));
             displayPath.moveTo(altered.x, altered.y);
             for (int i = 1; i < path.size(); i++) {
-                Point p = path.get(i);
-
-                altered = DrawingCanvas.transform(p);
+                altered = DrawingCanvas.transform(path.get(i));
 
                 displayPath.lineTo(altered.x, altered.y);
             }

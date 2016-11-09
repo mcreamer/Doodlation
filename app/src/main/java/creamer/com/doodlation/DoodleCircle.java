@@ -20,7 +20,13 @@ public class DoodleCircle extends Action {
 
     @Override
     public void draw(Canvas canvas, boolean transform) {
-        canvas.drawCircle(start.x+(end.x-start.x)/2,start.y+(end.y-start.y)/2,Math.max(end.x-start.x,end.y-start.y)/2,paint);
+        if(!transform) {
+            canvas.drawCircle(start.x + (end.x - start.x) / 2, start.y + (end.y - start.y) / 2, Math.max(end.x - start.x, end.y - start.y) / 2, paint);
+        }
+        else {
+            Point altered = DrawingCanvas.transform(start.x + (end.x - start.x)/ 2, start.y + (end.y - start.y) / 2);
+            canvas.drawCircle(altered.x, altered.y, Math.max(end.x - start.x, end.y - start.y) / 2, paint);
+        }
     }
 
     @Override

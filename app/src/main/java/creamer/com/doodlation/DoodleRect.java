@@ -19,7 +19,14 @@ public class DoodleRect extends Action {
 
     @Override
     public void draw(Canvas canvas, boolean transform) {
-        canvas.drawRect(start.x,start.y,end.x,end.y,paint);
+        if(!transform) {
+            canvas.drawRect(start.x, start.y, end.x, end.y, paint);
+        }
+        else {
+            Point alteredStart = DrawingCanvas.transform(start);
+            Point alteredEnd = DrawingCanvas.transform(end);
+            canvas.drawRect(alteredStart.x, alteredStart.y, alteredEnd.x, alteredEnd.y, paint);
+        }
     }
 
     @Override

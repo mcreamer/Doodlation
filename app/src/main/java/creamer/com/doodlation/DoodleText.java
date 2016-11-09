@@ -21,7 +21,13 @@ public class DoodleText extends Action {
 
     @Override
     public void draw(Canvas canvas, boolean transform) {
-        canvas.drawText(text,location.x,location.y,paint);
+        if(!transform) {
+            canvas.drawText(text, location.x, location.y, paint);
+        }
+        else {
+            Point altered = DrawingCanvas.transform(location);
+            canvas.drawText(text, altered.x, altered.y, paint);
+        }
     }
 
     public void setText(String text) {

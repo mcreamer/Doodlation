@@ -26,7 +26,7 @@ public class DoodlePath extends Action {
 
         Path displayPath = new Path();
 
-        if(transform) {
+        if(!transform) {
             displayPath.moveTo(path.get(0).x, path.get(0).y);
             for (int i = 1; i < path.size(); i++) {
                 Point p = path.get(i);
